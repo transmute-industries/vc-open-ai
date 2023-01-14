@@ -110,6 +110,7 @@ jobs:
 ```
 
 <img src="./img-5UTGHiIXgenetkbtauQk7anK.png" alt="Open AI generated image from a W3C Verifiable Credential"/>
+<img src="./img-zCJxKTRR18nt6hcrRChegegT.png" alt="Open AI generated image from a W3C Verifiable Credential"/>
 
 ## Develop
 
