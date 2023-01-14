@@ -1,0 +1,94 @@
+name: CI
+
+on: [push, workflow_dispatch]
+
+jobs:
+  coverage:
+    runs-on: ubuntu-latest
+    name: Coverage
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Install
+        run: npm ci
+      - name: Coverage
+        run: npm run coverage
+      - name: Build
+        run: npm run build
+      - name: Badges
+        uses: jpb06/jest-badges-action@latest
+        with:
+          branches: main
+      - name: Cache Save
+        id: cache-save
+        uses: actions/cache@v3
+        with:
+          path: |
+            ./*
+          key: ${{ github.sha }}
+          # TODO: be more like:
+          # path: |
+          #     ./dist/*
+          #     ./action.yml
+          #   key: ${{ runner.os }}-${{ hashFiles('**/package-lock.json') }}
+  summarize:
+    needs:
+      - coverage
+    runs-on: ubuntu-latest
+    name: Summarize
+    outputs:
+      json: ${{ steps.summarize.outputs.json }}
+    steps:
+      - name: Cache Restore
+        uses: actions/cache@v3
+        id: cache-restore
+        with:
+          path: |
+            ./*
+          key: ${{ github.sha }} 
+      - name: Summarize W3C Verifiable Credential with Open AI.
+        uses: ./ # Use a "private unpublished github action in the current repository"
+        id: summarize
+        with:
+          api-key: ${{ secrets.OPENAI_API_KEY }}
+          operation: summary
+          # https://w3id.org/traceability#GS1KeyCredential
+          document: |
+            {
+              "@context": [
+                "https://www.w3.org/2018/credentials/v1",
+                "https://ref.gs1.org/gs1/vc/licence-context/",
+                "https://w3id.org/vc/status-list/2021/v1"
+              ],
+              "id": "did:example:60cda318-a0a7-4e39-b600-ea38bf68a31f",
+              "type": [
+                "VerifiableCredential",
+                "GS1KeyCredential"
+              ],
+              "issuer": "did:key:z6MktHQo3fRRohk44dsbE76CuiTpBmyMWq2VVjvV6aBSeE3U",
+              "issuanceDate": "2020-12-02T09:48:11Z",
+              "credentialSubject": {
+                "id": "https://id.gs1.org/01/07541234555551",
+                "extendsCredential": "did:example:b6d13abe-464d-4bb9-a568-b6d81efd57e3"
+              },
+              "credentialStatus": {
+                "id": "https://www.example.com/mycreds/status/60cda318-a0a7-4e39-b600-ea38bf68a31f",
+                "type": "StatusList2021Credential"
+              },
+              "proof": {
+                "type": "Ed25519Signature2018",
+                "created": "2023-01-03T11:29:14Z",
+                "verificationMethod": "did:key:z6MktHQo3fRRohk44dsbE76CuiTpBmyMWq2VVjvV6aBSeE3U#z6MktHQo3fRRohk44dsbE76CuiTpBmyMWq2VVjvV6aBSeE3U",
+                "proofPurpose": "assertionMethod",
+                "jws": "eyJhbGciOiJFZERTQSIsImI2NCI6ZmFsc2UsImNyaXQiOlsiYjY0Il19..HZtoLHUCGXalQH8VPClh0TcsQeNKS5i9KWLyASTQYfPIUPDMnLnjgjPJ5TVCn7S4CV7i45aTsUWkfs6cBNntBQ"
+              }
+            }
+      - name: Review the summary
+        run: |-
+          echo '${{ steps.summary.outputs.json }}' >> summary.json;
+          cat ./summary.json | jq
+          
+  
+
+    
+    

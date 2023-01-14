@@ -1,0 +1,24 @@
+name: "Transmute Open AI Action for W3C Verifiable Credentials."
+description: |
+  This action enables integrations with Open AI & W3C Verifiable Credentials.
+inputs:
+  api-key:
+    description: |
+      An Open AI API Key.
+    require: true
+  operation:
+    description: |
+      An Open AI operation.
+    require: true
+  document:
+    description: |
+      A JSON Document (string).
+    require: true
+
+outputs:
+  json:
+    description: "The output as json."
+
+runs:
+  using: "node16"
+  main: "dist/index.js"
