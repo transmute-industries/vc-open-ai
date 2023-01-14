@@ -48,7 +48,7 @@ jobs:
           key: ${{ github.sha }} 
       - name: Summarize W3C Verifiable Credential with Open AI.
         uses: ./ # Use a "private unpublished github action in the current repository"
-        id: summarize
+        id: summary
         with:
           api-key: ${{ secrets.OPENAI_API_KEY }}
           operation: summary
@@ -87,6 +87,12 @@ jobs:
         run: |-
           echo '${{ steps.summary.outputs.json }}' >> summary.json;
           cat ./summary.json | jq
+
+      - name: Upload the work as an artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: recent-summary
+          path: summary.json
           
   
 
